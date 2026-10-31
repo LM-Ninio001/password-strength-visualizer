@@ -6,6 +6,7 @@
 //              the pattern itself rather than each character independently
 
 import { COMMON_PASSWORDS } from "./data/common-passwords.js";
+import { WORDLIST } from "./data/wordlist.js";
 
 const log2 = Math.log2;
 
@@ -29,6 +30,33 @@ const lowerAll = (chars) => chars.map((c) => c.toLowerCase());
 /** Common passwords, either the whole input or a word of 4+ characters inside it. */
 export function detectCommon(chars) {
   return findDictionaryMatches(lowerAll(chars), chars, "common");
+}
+
+const WORDS = new Set(WORDLIST);
+const MAX_WORD_LENGTH = Math.max(...WORDLIST.map((w) => w.length));
+
+/**
+ * Dictionary words from the passphrase list. An attacker who knows the list
+ * guesses whole words, so each costs log2(list size) bits, not ~4.7 per letter.
+ */
+export function detectWord(chars) {
+  const lower = lowerAll(chars);
+  const matches = [];
+  for (let start = 0; start < lower.length; start++) {
+    const maxEnd = Math.min(lower.length, start + MAX_WORD_LENGTH);
+    for (let end = start + 3; end <= maxEnd; end++) {
+      if (!WORDS.has(lower.slice(start, end).join(""))) continue;
+      const token = chars.slice(start, end);
+      matches.push({
+        type: "word",
+        start,
+        end,
+        token: token.join(""),
+        bits: Math.log2(WORDLIST.length) + capitalisationBits(token),
+      });
+    }
+  }
+  return matches;
 }
 
 /** Common words written in leetspeak, e.g. p@ssw0rd. Only reported if substitution was needed. */
@@ -225,6 +253,7 @@ export function detectAll(chars) {
   return [
     ...detectCommon(chars),
     ...detectLeet(chars),
+    ...detectWord(chars),
     ...detectKeyboard(chars),
     ...detectRepeat(chars),
     ...detectSequence(chars),

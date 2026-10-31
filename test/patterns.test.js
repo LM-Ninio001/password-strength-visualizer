@@ -7,6 +7,7 @@ import {
   detectRepeat,
   detectSequence,
   detectDate,
+  detectWord,
 } from "../src/patterns.js";
 import { COMMON_PASSWORDS } from "../src/data/common-passwords.js";
 
@@ -108,4 +109,9 @@ test("detectDate: indices stay aligned after emoji", () => {
   assert.equal(m.start, 2);
   assert.equal(m.end, 6);
   assert.equal(m.token, "2001");
+});
+
+test("detectWord: words from the passphrase list", () => {
+  assert.deepEqual(tokens(detectWord(c("Otter-Maple"))), ["Otter", "Maple"]);
+  assert.deepEqual(detectWord(c("zq")), []);
 });

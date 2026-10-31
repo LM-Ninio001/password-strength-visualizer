@@ -186,6 +186,7 @@ const PATTERN_TIPS = {
   repeat: "Avoid repeated characters like aaa or 111",
   sequence: "Avoid sequences like abcd or 6789",
   date: "Avoid years and dates; they're among the first things attackers try",
+  word: "Dictionary words are guessed whole; use more of them or mix in random characters",
 };
 
 /** Plain-English suggestions, most important first. */

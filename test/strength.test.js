@@ -194,3 +194,9 @@ test("analyze: one long repeated character is weak despite its length", () => {
   assert.ok(r.entropy < 20);
   assert.equal(r.level, 0);
 });
+
+test("analyze: passphrases are scored by words, not letters", () => {
+  const r = analyze("otterpianocomet");
+  assert.ok(r.baseEntropy > 70, "15 random lowercase letters would be ~70 bits");
+  assert.ok(r.entropy < 30, "three list words are ~27 bits");
+});
