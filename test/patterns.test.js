@@ -8,6 +8,7 @@ import {
   detectSequence,
   detectDate,
   detectWord,
+  detectSeparator,
 } from "../src/patterns.js";
 import { COMMON_PASSWORDS } from "../src/data/common-passwords.js";
 
@@ -114,4 +115,13 @@ test("detectDate: indices stay aligned after emoji", () => {
 test("detectWord: words from the passphrase list", () => {
   assert.deepEqual(tokens(detectWord(c("Otter-Maple"))), ["Otter", "Maple"]);
   assert.deepEqual(detectWord(c("zq")), []);
+});
+
+test("detectSeparator: a repeated separator shares one choice", () => {
+  const m = detectSeparator(c("Otter-Maple-Comet"));
+  assert.equal(m.length, 2);
+  const total = m.reduce((sum, x) => sum + x.bits, 0);
+  assert.ok(Math.abs(total - Math.log2(33)) < 1e-9);
+  assert.deepEqual(detectSeparator(c("ab-cd")), [], "a single symbol isn't a separator pattern");
+  assert.deepEqual(detectSeparator(c("a--b--c")), [], "must sit between letters or digits");
 });

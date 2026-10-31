@@ -248,6 +248,28 @@ function span(type, chars, start, end, bits) {
   return { type, start, end, token: chars.slice(start, end).join(""), bits };
 }
 
+/**
+ * A symbol repeated as a word separator (Otter-Maple-Comet). Choosing the
+ * separator is one decision, so all its occurrences share log2(33) bits.
+ * Internal only: it isn't a weakness, so the UI doesn't list it.
+ */
+export function detectSeparator(chars) {
+  const isAlnum = (c) => /[A-Za-z0-9]/.test(c ?? "");
+  const positions = new Map();
+  chars.forEach((c, i) => {
+    if (/^[\x20-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e]$/.test(c) && isAlnum(chars[i - 1]) && isAlnum(chars[i + 1])) {
+      if (!positions.has(c)) positions.set(c, []);
+      positions.get(c).push(i);
+    }
+  });
+  const matches = [];
+  for (const [c, idx] of positions) {
+    if (idx.length < 2) continue;
+    for (const i of idx) matches.push({ type: "separator", start: i, end: i + 1, token: c, bits: log2(33) / idx.length });
+  }
+  return matches;
+}
+
 /** Runs every detector. Matches may overlap; strength.js picks the cheapest cover. */
 export function detectAll(chars) {
   return [
@@ -258,5 +280,6 @@ export function detectAll(chars) {
     ...detectRepeat(chars),
     ...detectSequence(chars),
     ...detectDate(chars),
+    ...detectSeparator(chars),
   ];
 }

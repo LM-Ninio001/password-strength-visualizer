@@ -200,3 +200,10 @@ test("analyze: passphrases are scored by words, not letters", () => {
   assert.ok(r.baseEntropy > 70, "15 random lowercase letters would be ~70 bits");
   assert.ok(r.entropy < 30, "three list words are ~27 bits");
 });
+
+test("analyze: generated-style passphrase lands near its word-list entropy", () => {
+  const r = analyze("Otter-Maple-Comet-Violin-Tiger-Spoon-Lotus-42");
+  // 7 words × ~8.9 bits + capitals + one separator choice + 2 digits
+  assert.ok(r.entropy > 70 && r.entropy < 100, `got ${r.entropy}`);
+  assert.ok(!r.patterns.some((p) => p.type === "separator"), "separators aren't shown as weaknesses");
+});

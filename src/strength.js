@@ -249,6 +249,7 @@ export function analyze(password) {
 /** Drops matches fully contained in a longer match of the same type, for display. */
 function dedupePatterns(patterns) {
   return patterns
+    .filter((p) => p.type !== "separator")
     .filter(
       (p) =>
         !patterns.some(
