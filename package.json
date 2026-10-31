@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node --test test/",
+    "test": "node --test",
     "start": "python3 -m http.server 8000"
   },
   "engines": { "node": ">=20" },
